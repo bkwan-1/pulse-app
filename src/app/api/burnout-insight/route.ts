@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -35,10 +35,12 @@ Student metrics:
 
 Write exactly 2 sentences of practical, empathetic feedback addressed directly to the student. Be specific to their metrics. No bullet points, no headers, no markdown.`;
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    const insight = result.response.text().trim();
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+    const result = await ai.models.generateContent({
+      model: "gemini-2.0-flash-lite",
+      contents: prompt,
+    });
+    const insight = (result.text ?? "").trim();
 
     return NextResponse.json({ insight });
   } catch (err) {

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -36,25 +36,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
-    let result;
+    let raw: string;
     if (type === "file" && fileData && mimeType) {
-      result = await model.generateContent([
-        PROMPT,
-        { inlineData: { data: fileData, mimeType } },
-      ]);
+      const result = await ai.models.generateContent({
+        model: "gemini-2.0-flash-lite",
+        contents: [{ parts: [{ text: PROMPT }, { inlineData: { data: fileData, mimeType } }] }],
+      });
+      raw = (result.text ?? "").trim();
     } else if (type === "text" && text) {
-      result = await model.generateContent(`${PROMPT}\n\nContent to analyze:\n${text}`);
+      const result = await ai.models.generateContent({
+        model: "gemini-2.0-flash-lite",
+        contents: `${PROMPT}\n\nContent to analyze:\n${text}`,
+      });
+      raw = (result.text ?? "").trim();
     } else {
       return NextResponse.json(
         { error: "Invalid request: provide text or file data." },
         { status: 400 }
       );
     }
-
-    const raw = result.response.text().trim();
     // Strip accidental markdown code fences Gemini sometimes emits
     const cleaned = raw
       .replace(/^```(?:json)?\s*\n?/, "")
