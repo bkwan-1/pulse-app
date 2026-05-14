@@ -161,7 +161,7 @@ function AssignmentCard() {
 
 function AIIntakeSection() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-28 md:px-10">
+    <section id="features" className="mx-auto max-w-6xl px-6 py-28 md:px-10">
       <div className="grid grid-cols-1 gap-16 md:grid-cols-2 md:items-center">
         <SectionReveal delay={0}>
           <FeatureText
@@ -671,11 +671,15 @@ function Hero() {
         </motion.p>
 
         <motion.div variants={item} className="mt-2 flex items-center gap-3">
-          <Button variant="primary" size="lg">Get started free</Button>
-          <Button variant="ghost" size="lg" className="group">
-            See how it works
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
+          <Link href="/auth/login">
+            <Button variant="primary" size="lg">Get started free</Button>
+          </Link>
+          <Link href="#features">
+            <Button variant="ghost" size="lg" className="group">
+              See how it works
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </Link>
         </motion.div>
       </motion.div>
     </section>
