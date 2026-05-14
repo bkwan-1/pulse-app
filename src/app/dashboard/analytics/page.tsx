@@ -368,6 +368,8 @@ export default function AnalyticsPage() {
       setFocusGrid(buildFocusGrid(sessions));
       setBurnout(calculateBurnout(tasks, sessions));
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, [user]);
 

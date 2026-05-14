@@ -427,6 +427,8 @@ export default function DashboardPage() {
         workloadLevel: profileRes.data?.workload_level ?? "—",
       });
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, [user]);
 

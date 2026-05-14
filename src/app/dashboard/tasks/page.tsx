@@ -568,8 +568,9 @@ export default function TasksPage() {
         .update(row)
         .eq("id", editingTask.id);
       if (error) {
+        console.error("Update task error:", error);
         setTasks((prev) => prev.map((t) => (t.id === editingTask.id ? original : t)));
-        toast.error("Failed to update task.");
+        toast.error(`Failed to update task: ${error.message}`);
       }
     } else {
       const tempId = `temp-${Date.now()}`;
@@ -587,8 +588,9 @@ export default function TasksPage() {
         .select()
         .single();
       if (error) {
+        console.error("Insert task error:", error);
         setTasks((prev) => prev.filter((t) => t.id !== tempId));
-        toast.error("Failed to add task.");
+        toast.error(`Failed to add task: ${error.message}`);
       } else {
         setTasks((prev) => prev.map((t) => (t.id === tempId ? (data as Task) : t)));
       }

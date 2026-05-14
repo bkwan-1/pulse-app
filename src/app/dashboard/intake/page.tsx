@@ -253,8 +253,10 @@ export default function IntakePage() {
         data: { user },
       } = await supabase.auth.getUser();
 
+      if (!user) throw new Error("Not authenticated");
+
       const rows = tasks.map((t) => ({
-        user_id: user!.id,
+        user_id: user.id,
         title: t.title,
         course: t.subject || null,
         due_date: t.due_date || null,

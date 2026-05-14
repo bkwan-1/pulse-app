@@ -334,15 +334,20 @@ export default function SchedulePage() {
     if (!date || !hourStr) return;
     const startTime = `${hourStr.padStart(2, "0")}:00`;
 
+    const snapshot = blocks;
     setBlocks((prev) =>
       prev.map((b) =>
         b.id === blockId ? { ...b, date, start_time: startTime } : b
       )
     );
-    await createClient()
+    const { error } = await createClient()
       .from("schedules")
       .update({ date, start_time: startTime })
       .eq("id", blockId);
+    if (error) {
+      setBlocks(snapshot);
+      toast.error("Failed to reschedule block.");
+    }
   }
 
   const weekLabel = `${weekDates[0].toLocaleDateString("en-US", {
