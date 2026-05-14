@@ -107,11 +107,11 @@ export default function LoginPage() {
           {/* Fine print */}
           <p className="mt-5 text-center text-xs text-[var(--text-muted)]">
             By signing in you agree to our{" "}
-            <a href="#" className="underline underline-offset-2 hover:text-[var(--text-secondary)] transition-colors">
+            <a href="/terms" className="underline underline-offset-2 hover:text-[var(--text-secondary)] transition-colors">
               Terms
             </a>{" "}
             and{" "}
-            <a href="#" className="underline underline-offset-2 hover:text-[var(--text-secondary)] transition-colors">
+            <a href="/privacy" className="underline underline-offset-2 hover:text-[var(--text-secondary)] transition-colors">
               Privacy Policy
             </a>
             .

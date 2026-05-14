@@ -584,13 +584,17 @@ function Footer() {
           © 2025 Pulse. Built for students.
         </p>
         <div className="flex gap-5 text-xs text-[var(--text-muted)]">
-          {["Privacy", "Terms", "Contact"].map((link) => (
+          {[
+            { label: "Privacy", href: "/privacy" },
+            { label: "Terms", href: "/terms" },
+            { label: "Contact", href: "mailto:brandonkyvr@gmail.com" },
+          ].map(({ label, href }) => (
             <a
-              key={link}
-              href="#"
+              key={label}
+              href={href}
               className="transition-colors hover:text-[var(--text-secondary)]"
             >
-              {link}
+              {label}
             </a>
           ))}
         </div>
