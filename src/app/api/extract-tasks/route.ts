@@ -41,13 +41,13 @@ export async function POST(request: NextRequest) {
     let raw: string;
     if (type === "file" && fileData && mimeType) {
       const result = await ai.models.generateContent({
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash-lite",
         contents: [{ parts: [{ text: PROMPT }, { inlineData: { data: fileData, mimeType } }] }],
       });
       raw = (result.text ?? "").trim();
     } else if (type === "text" && text) {
       const result = await ai.models.generateContent({
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash-lite",
         contents: `${PROMPT}\n\nContent to analyze:\n${text}`,
       });
       raw = (result.text ?? "").trim();

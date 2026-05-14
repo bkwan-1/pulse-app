@@ -37,7 +37,7 @@ Write exactly 2 sentences of practical, empathetic feedback addressed directly t
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash-lite",
+      model: "gemini-2.5-flash-lite",
       contents: prompt,
     });
     const insight = (result.text ?? "").trim();
