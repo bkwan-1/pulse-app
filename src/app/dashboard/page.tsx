@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -10,8 +13,19 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { ListTodo, Timer, Flame, Activity, Sparkles } from "lucide-react";
-import { Card, Badge, Skeleton } from "@/components/ui";
+import {
+  ListTodo,
+  Timer,
+  Flame,
+  Activity,
+  Sparkles,
+  Zap,
+  Check,
+  CheckCircle2,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
+import { Button, Card, Badge, Skeleton } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/lib/supabase/client";
@@ -44,6 +58,31 @@ interface ChartPoint {
   day: string;
   hours: number;
 }
+
+/* ─── animation constants ────────────────────────────────────────── */
+
+const EASE = [0.25, 0.1, 0.25, 1] as [number, number, number, number];
+
+const overlayVariants = {
+  hidden:  { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.15 } },
+  exit:    { opacity: 0, transition: { duration: 0.12 } },
+};
+
+const dialogVariants = {
+  hidden:  { opacity: 0, scale: 0.96, y: -6 },
+  visible: { opacity: 1, scale: 1,    y: 0,  transition: { duration: 0.18, ease: EASE } },
+  exit:    { opacity: 0, scale: 0.96, y: -6, transition: { duration: 0.14, ease: EASE } },
+};
+
+/* ─── replan steps ───────────────────────────────────────────────── */
+
+const REPLAN_STEPS = [
+  "Reading your deadlines…",
+  "Analyzing workload…",
+  "Optimizing your schedule…",
+  "Done!",
+];
 
 /* ─── helpers ───────────────────────────────────────────────────── */
 
@@ -85,7 +124,6 @@ function workloadBadge(
 }
 
 function formatTime(time: string): string {
-  // "09:00" → "9:00am"
   const [hStr, mStr] = time.split(":");
   const h = parseInt(hStr, 10);
   const m = parseInt(mStr, 10);
@@ -133,7 +171,143 @@ function sumTodayHours(
     .reduce((acc, s) => acc + (s.duration_hours ?? 0), 0);
 }
 
-/* ─── sub-components ────────────────────────────────────────────── */
+/* ─── confirmation modal ─────────────────────────────────────────── */
+
+function ConfirmModal({
+  onConfirm,
+  onCancel,
+}: {
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <motion.div
+      key="confirm-overlay"
+      variants={overlayVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+      onClick={onCancel}
+    >
+      <motion.div
+        variants={dialogVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        className="w-full max-w-sm overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* icon */}
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--accent)]/20 bg-[var(--accent)]/10">
+          <Sparkles className="h-6 w-6 text-[var(--accent)]" />
+        </div>
+
+        <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+          Rebuild your week?
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
+          Pulse will re-analyse your deadlines and generate a fresh, optimised
+          schedule for the next 7 days.
+        </p>
+
+        <div className="mt-6 flex gap-3">
+          <Button
+            variant="secondary"
+            size="md"
+            className="flex-1"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
+            className="flex-1"
+            onClick={onConfirm}
+          >
+            Replan
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ─── fullscreen replan overlay ──────────────────────────────────── */
+
+function ReplanOverlay({ step }: { step: number }) {
+  return (
+    <motion.div
+      key="replan-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[70] flex flex-col items-center justify-center gap-10 bg-[var(--bg-primary)]"
+    >
+      {/* pulsing logo */}
+      <motion.div
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+        className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent)]/10"
+      >
+        <Zap className="h-8 w-8 text-[var(--accent)]" strokeWidth={2.5} />
+      </motion.div>
+
+      {/* animated steps */}
+      <div className="flex flex-col gap-3">
+        <AnimatePresence initial={false}>
+          {REPLAN_STEPS.map((label, i) => {
+            if (i > step) return null;
+            const isPast    = i < step;
+            const isCurrent = i === step;
+            const isDone    = i === 3 && step === 3;
+
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: EASE }}
+                className={cn(
+                  "flex items-center gap-3",
+                  isPast && "opacity-40"
+                )}
+              >
+                {/* icon column */}
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center">
+                  {isPast ? (
+                    <Check className="h-4 w-4 text-green-400" />
+                  ) : isDone ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-400" />
+                  ) : (
+                    <Loader2 className="h-4 w-4 animate-spin text-[var(--accent)]" />
+                  )}
+                </div>
+
+                {/* label */}
+                <span
+                  className={cn(
+                    "text-sm font-medium",
+                    isPast && "line-through text-[var(--text-muted)]",
+                    isCurrent && !isDone && "text-[var(--text-primary)]",
+                    isDone && "text-lg font-semibold text-green-400"
+                  )}
+                >
+                  {label}
+                </span>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── stat card ──────────────────────────────────────────────────── */
 
 function StatCard({
   icon,
@@ -182,7 +356,7 @@ function ChartTooltip({
   );
 }
 
-/* ─── page ──────────────────────────────────────────────────────── */
+/* ─── page ───────────────────────────────────────────────────────── */
 
 const DEFAULT_STATS: StatData = {
   tasksThisWeek: 0,
@@ -192,12 +366,18 @@ const DEFAULT_STATS: StatData = {
 };
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<StatData>(DEFAULT_STATS);
   const [schedule, setSchedule] = useState<ScheduleEvent[]>([]);
   const [deadlines, setDeadlines] = useState<Deadline[]>([]);
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
+
+  // replan state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [replanning, setReplanning] = useState(false);
+  const [replanStep, setReplanStep] = useState(-1);
 
   useEffect(() => {
     if (!user) return;
@@ -249,6 +429,38 @@ export default function DashboardPage() {
       setLoading(false);
     });
   }, [user]);
+
+  async function handleReplan() {
+    setConfirmOpen(false);
+    setReplanning(true);
+    setReplanStep(0);
+
+    const advance = (to: number, delayMs: number) =>
+      new Promise<void>((res) => setTimeout(() => { setReplanStep(to); res(); }, delayMs));
+
+    try {
+      // API call and animation steps 0→2 run in parallel
+      const [apiData] = await Promise.all([
+        fetch("/api/generate-schedule", { method: "POST" }).then((r) => r.json()),
+        advance(1, 800).then(() => advance(2, 800)),
+      ]);
+
+      if (apiData?.error) throw new Error(apiData.error);
+
+      // Step 3: Done!
+      setReplanStep(3);
+      await new Promise((r) => setTimeout(r, 700));
+
+      router.push("/dashboard/schedule");
+      toast.success("Schedule rebuilt.", {
+        description: "Your week has been replanned.",
+      });
+    } catch (e) {
+      setReplanning(false);
+      setReplanStep(-1);
+      toast.error(e instanceof Error ? e.message : "Replan failed. Try again.");
+    }
+  }
 
   const greeting = getGreeting();
   const firstName =
@@ -344,9 +556,7 @@ export default function DashboardPage() {
                     </p>
                     <p className="text-xs text-[var(--text-muted)]">
                       {formatTime(ev.start_time)}
-                      {ev.duration_minutes
-                        ? ` · ${ev.duration_minutes}min`
-                        : ""}
+                      {ev.duration_minutes ? ` · ${ev.duration_minutes}min` : ""}
                     </p>
                   </div>
                   {typeBadge(ev.type)}
@@ -414,10 +624,7 @@ export default function DashboardPage() {
               barSize={28}
               margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
             >
-              <CartesianGrid
-                vertical={false}
-                stroke="var(--border-subtle)"
-              />
+              <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
               <XAxis
                 dataKey="day"
                 tick={{ fill: "var(--text-muted)", fontSize: 11 }}
@@ -434,11 +641,7 @@ export default function DashboardPage() {
                 content={<ChartTooltip />}
                 cursor={{ fill: "var(--surface)" }}
               />
-              <Bar
-                dataKey="hours"
-                fill="var(--accent)"
-                radius={[4, 4, 0, 0]}
-              />
+              <Bar dataKey="hours" fill="var(--accent)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -446,12 +649,28 @@ export default function DashboardPage() {
 
       {/* ── Floating FAB ─────────────────────────────────────────── */}
       <button
+        onClick={() => setConfirmOpen(true)}
         className="fixed bottom-24 right-6 z-40 flex items-center gap-2 rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-medium text-white shadow-[0_4px_24px_rgba(124,58,237,0.35)] transition-all hover:scale-105 hover:bg-[var(--accent)]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] md:bottom-8"
         aria-label="Replan my schedule"
       >
         <Sparkles className="h-4 w-4" />
         Replan my life
       </button>
+
+      {/* ── Confirm modal ────────────────────────────────────────── */}
+      <AnimatePresence>
+        {confirmOpen && (
+          <ConfirmModal
+            onConfirm={handleReplan}
+            onCancel={() => setConfirmOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Fullscreen replan overlay ─────────────────────────────── */}
+      <AnimatePresence>
+        {replanning && <ReplanOverlay step={replanStep} />}
+      </AnimatePresence>
     </div>
   );
 }

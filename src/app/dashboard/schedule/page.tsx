@@ -9,6 +9,7 @@ import {
 } from "@dnd-kit/core";
 import { CalendarDays, ChevronLeft, ChevronRight, RefreshCw, Sparkles } from "lucide-react";
 import { Button, Skeleton } from "@/components/ui";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/lib/supabase/client";
@@ -315,8 +316,11 @@ export default function SchedulePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Generation failed");
       await fetchBlocks();
+      toast.success("Schedule generated.", { description: "Your week has been planned." });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      const msg = e instanceof Error ? e.message : "Something went wrong";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setGenerating(false);
     }

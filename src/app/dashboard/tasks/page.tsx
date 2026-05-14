@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   Check,
   ChevronDown,
@@ -532,8 +533,12 @@ export default function TasksPage() {
   async function deleteTask(id: string) {
     const snapshot = [...tasks];
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    toast.success("Task deleted.");
     const { error } = await createClient().from("tasks").delete().eq("id", id);
-    if (error) setTasks(snapshot);
+    if (error) {
+      setTasks(snapshot);
+      toast.error("Failed to delete task.");
+    }
   }
 
   async function handleSave() {
@@ -556,6 +561,7 @@ export default function TasksPage() {
       setTasks((prev) =>
         prev.map((t) => (t.id === editingTask.id ? { ...t, ...row } : t))
       );
+      toast.success("Task updated.");
       closePanel();
       const { error } = await createClient()
         .from("tasks")
@@ -563,6 +569,7 @@ export default function TasksPage() {
         .eq("id", editingTask.id);
       if (error) {
         setTasks((prev) => prev.map((t) => (t.id === editingTask.id ? original : t)));
+        toast.error("Failed to update task.");
       }
     } else {
       const tempId = `temp-${Date.now()}`;
@@ -572,6 +579,7 @@ export default function TasksPage() {
         created_at: new Date().toISOString(),
       };
       setTasks((prev) => [optimistic, ...prev]);
+      toast.success("Task added.");
       closePanel();
       const { data, error } = await createClient()
         .from("tasks")
@@ -580,6 +588,7 @@ export default function TasksPage() {
         .single();
       if (error) {
         setTasks((prev) => prev.filter((t) => t.id !== tempId));
+        toast.error("Failed to add task.");
       } else {
         setTasks((prev) => prev.map((t) => (t.id === tempId ? (data as Task) : t)));
       }

@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "src/app/api/generate-schedule/route.ts": { "maxDuration": 60 },
+    "src/app/api/extract-tasks/route.ts": { "maxDuration": 30 },
+    "src/app/api/burnout-insight/route.ts": { "maxDuration": 30 }
+  }
+}

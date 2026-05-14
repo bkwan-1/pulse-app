@@ -15,6 +15,7 @@ import {
   StickyNote,
   HeartPulse,
 } from "lucide-react";
+import Link from "next/link";
 import { Button, Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -623,8 +624,12 @@ function Navbar() {
         Pulse
       </div>
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm">Sign in</Button>
-        <Button variant="primary" size="sm">Get started</Button>
+        <Link href="/auth/login">
+          <Button variant="ghost" size="sm">Sign in</Button>
+        </Link>
+        <Link href="/auth/login">
+          <Button variant="primary" size="sm">Get started</Button>
+        </Link>
       </div>
     </nav>
   );

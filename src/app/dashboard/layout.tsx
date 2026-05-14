@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Zap,
   LayoutDashboard,
@@ -160,7 +160,18 @@ export default function DashboardLayout({
         className="flex flex-1 flex-col overflow-hidden"
       >
         <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
-          <div className="p-6">{children}</div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.18, ease: EASE }}
+              className="p-6"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </motion.div>
 
