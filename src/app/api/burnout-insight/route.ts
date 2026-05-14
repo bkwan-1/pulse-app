@@ -36,7 +36,7 @@ Student metrics:
 Write exactly 2 sentences of practical, empathetic feedback addressed directly to the student. Be specific to their metrics. No bullet points, no headers, no markdown.`;
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const result = await model.generateContent(prompt);
     const insight = result.response.text().trim();
 
