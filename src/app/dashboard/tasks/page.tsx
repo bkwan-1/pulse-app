@@ -534,7 +534,10 @@ export default function TasksPage() {
     const snapshot = [...tasks];
     setTasks((prev) => prev.filter((t) => t.id !== id));
     toast.success("Task deleted.");
-    const { error } = await createClient().from("tasks").delete().eq("id", id);
+    const client = createClient();
+    // Delete schedule blocks first (FK is ON DELETE SET NULL, so must clean up manually)
+    await client.from("schedules").delete().eq("task_id", id);
+    const { error } = await client.from("tasks").delete().eq("id", id);
     if (error) {
       setTasks(snapshot);
       toast.error("Failed to delete task.");
