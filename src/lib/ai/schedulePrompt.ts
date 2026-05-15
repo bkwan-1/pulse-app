@@ -14,6 +14,13 @@ export interface ScheduleProfile {
   challenges: string[];
 }
 
+export interface Activity {
+  title: string;
+  days_of_week: number[];  // 0=Sun, 1=Mon, ..., 6=Sat
+  start_time: string;      // "HH:MM"
+  end_time: string;        // "HH:MM"
+}
+
 export function offsetDate(iso: string, days: number): string {
   const d = new Date(iso + "T00:00:00");
   d.setDate(d.getDate() + days);
@@ -26,11 +33,14 @@ const PEAK_WINDOWS: Record<string, string> = {
   night:     "18:00–23:00",
 };
 
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
 export function buildSchedulePrompt(
   tasks: ScheduleTask[],
   profile: ScheduleProfile,
   today: string,
-  daysAhead = 7
+  daysAhead = 7,
+  activities: Activity[] = []
 ): string {
   const endDate = offsetDate(today, daysAhead - 1);
 
@@ -67,6 +77,22 @@ export function buildSchedulePrompt(
           .join("\n")
       : "  (no tasks)";
 
+  // Build blocked times string from activities
+  let blockedRule = "";
+  if (activities.length > 0) {
+    const byDay: Record<number, string[]> = {};
+    for (const a of activities) {
+      for (const d of a.days_of_week) {
+        if (!byDay[d]) byDay[d] = [];
+        byDay[d].push(`${a.start_time}–${a.end_time} (${a.title})`);
+      }
+    }
+    const lines = Object.entries(byDay)
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([day, times]) => `  - ${DAY_NAMES[Number(day)]}: ${times.join(", ")}`);
+    blockedRule = `\n12. NEVER schedule during these blocked times (activities/commitments the student cannot skip):\n${lines.join("\n")}`;
+  }
+
   return `You are an expert academic schedule planner for students. Your job is to create a realistic, sustainable weekly study schedule.
 
 STUDENT PROFILE:
@@ -90,7 +116,7 @@ RULES — follow every rule strictly:
 8. Prioritise High-priority tasks and place them earlier in the week
 9. Schedule Difficulty 4–5 tasks during peak hours only
 10. If estimated_hours is null for a task, assume 1 hour
-11. Spread sessions across the week — avoid stacking all work on one or two days
+11. Spread sessions across the week — avoid stacking all work on one or two days${blockedRule}
 
 OUTPUT FORMAT:
 Return ONLY a raw JSON array — no markdown fences, no explanation, no extra text.

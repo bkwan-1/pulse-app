@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DndContext,
   useDraggable,
@@ -31,11 +31,20 @@ interface ScheduleBlock {
   } | null;
 }
 
+interface ActivityItem {
+  id: string;
+  title: string;
+  days_of_week: number[];
+  start_time: string;
+  end_time: string;
+  color: string;
+}
+
 /* ─── constants ──────────────────────────────────────────────────── */
 
 const HOUR_HEIGHT   = 64;
-const START_HOUR    = 7;
-const END_HOUR      = 22;
+const START_HOUR    = 0;
+const END_HOUR      = 24;
 const TOTAL_HOURS   = END_HOUR - START_HOUR;
 const TOTAL_HEIGHT  = TOTAL_HOURS * HOUR_HEIGHT;
 const HOURS         = Array.from({ length: TOTAL_HOURS }, (_, i) => START_HOUR + i);
@@ -177,6 +186,42 @@ function DraggableBlock({ block }: { block: ScheduleBlock }) {
   );
 }
 
+/* ─── activity block (non-draggable) ────────────────────────────── */
+
+function ActivityBlock({ activity }: { activity: ActivityItem }) {
+  const [startH, startM] = activity.start_time.split(":").map(Number);
+  const [endH,   endM]   = activity.end_time.split(":").map(Number);
+  const startFrac = (startH ?? 0) + (startM ?? 0) / 60;
+  const endFrac   = (endH   ?? 0) + (endM   ?? 0) / 60;
+  const top    = (startFrac - START_HOUR) * HOUR_HEIGHT;
+  const height = Math.max((endFrac - startFrac) * HOUR_HEIGHT - 2, 20);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top,
+        height,
+        left: 4,
+        right: 4,
+        zIndex: 1,
+        backgroundColor: activity.color + "33",
+        borderLeft: `2px solid ${activity.color}`,
+      }}
+      className="overflow-hidden rounded-md px-2 py-1 text-xs select-none"
+    >
+      <p className="truncate font-semibold leading-tight" style={{ color: activity.color }}>
+        {activity.title}
+      </p>
+      {height > 36 && (
+        <p className="truncate opacity-70" style={{ color: activity.color }}>
+          {activity.start_time}–{activity.end_time}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /* ─── day column ─────────────────────────────────────────────────── */
 
 function DayColumn({
@@ -184,11 +229,13 @@ function DayColumn({
   label,
   isToday,
   blocks,
+  activities,
 }: {
   date: Date;
   label: string;
   isToday: boolean;
   blocks: ScheduleBlock[];
+  activities: ActivityItem[];
 }) {
   const iso = isoDate(date);
   return (
@@ -222,6 +269,9 @@ function DayColumn({
         {HOURS.map((h) => (
           <HourSlot key={h} date={iso} hour={h} />
         ))}
+        {activities.map((a) => (
+          <ActivityBlock key={a.id} activity={a} />
+        ))}
         {blocks.map((b) => (
           <DraggableBlock key={b.id} block={b} />
         ))}
@@ -235,9 +285,11 @@ function DayColumn({
 function WeekGrid({
   weekDates,
   blocks,
+  activities,
 }: {
   weekDates: Date[];
   blocks: ScheduleBlock[];
+  activities: ActivityItem[];
 }) {
   const today = isoDate(new Date());
 
@@ -271,6 +323,7 @@ function WeekGrid({
           label={DAY_LABELS[i]}
           isToday={isoDate(date) === today}
           blocks={blocks.filter((b) => b.date === isoDate(date))}
+          activities={activities.filter((a) => a.days_of_week.includes(date.getDay()))}
         />
       ))}
     </div>
@@ -282,10 +335,12 @@ function WeekGrid({
 export default function SchedulePage() {
   const { user } = useUser();
   const [blocks, setBlocks] = useState<ScheduleBlock[]>([]);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()));
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const weekDates = getWeekDates(weekStart);
   const startIso  = isoDate(weekStart);
@@ -294,15 +349,29 @@ export default function SchedulePage() {
   const fetchBlocks = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const { data } = await createClient()
-      .from("schedules")
-      .select("*, tasks(id, title, course, estimated_hours, priority)")
-      .eq("user_id", user.id)
-      .gte("date", startIso)
-      .lte("date", endIso);
-    setBlocks((data ?? []) as ScheduleBlock[]);
+    const [schedulesRes, activitiesRes] = await Promise.all([
+      createClient()
+        .from("schedules")
+        .select("*, tasks(id, title, course, estimated_hours, priority)")
+        .eq("user_id", user.id)
+        .gte("date", startIso)
+        .lte("date", endIso),
+      createClient()
+        .from("activities")
+        .select("id,title,days_of_week,start_time,end_time,color")
+        .eq("user_id", user.id),
+    ]);
+    setBlocks((schedulesRes.data ?? []) as ScheduleBlock[]);
+    setActivities((activitiesRes.data ?? []) as ActivityItem[]);
     setLoading(false);
   }, [user, startIso, endIso]);
+
+  // Scroll to 6am on initial load
+  useEffect(() => {
+    if (!loading && scrollRef.current) {
+      scrollRef.current.scrollTop = 6 * HOUR_HEIGHT;
+    }
+  }, [loading]);
 
   useEffect(() => {
     fetchBlocks();
@@ -411,7 +480,7 @@ export default function SchedulePage() {
       {/* content */}
       {loading ? (
         <Skeleton className="h-[520px] w-full rounded-xl" />
-      ) : blocks.length === 0 ? (
+      ) : blocks.length === 0 && activities.length === 0 ? (
         /* empty state */
         <div className="flex flex-col items-center justify-center rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)] px-8 py-24 text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20">
@@ -437,17 +506,30 @@ export default function SchedulePage() {
         </div>
       ) : (
         /* week grid */
-        <DndContext onDragEnd={handleDragEnd}>
-          <div className="overflow-y-auto" style={{ maxHeight: "75vh" }}>
-            <WeekGrid weekDates={weekDates} blocks={blocks} />
-          </div>
-        </DndContext>
+        <div className="flex flex-col gap-3">
+          {blocks.length === 0 && (
+            <div className="flex items-center justify-between rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] px-5 py-4">
+              <p className="text-sm text-[var(--text-secondary)]">No study blocks yet — generate a schedule to fill your week.</p>
+              <Button variant="primary" size="sm" loading={generating} onClick={handleGenerate}>
+                {!generating && <Sparkles className="h-4 w-4" />}
+                Generate
+              </Button>
+            </div>
+          )}
+          <DndContext onDragEnd={handleDragEnd}>
+            <div ref={scrollRef} className="overflow-y-auto" style={{ maxHeight: "75vh" }}>
+              <WeekGrid weekDates={weekDates} blocks={blocks} activities={activities} />
+            </div>
+          </DndContext>
+        </div>
       )}
 
       {/* legend */}
-      {blocks.length > 0 && !loading && (
+      {!loading && (blocks.length > 0 || activities.length > 0) && (
         <p className="text-xs text-[var(--text-muted)]">
-          Drag blocks to reschedule · Click "Regenerate" to rebuild the entire week
+          {blocks.length > 0 && "Drag study blocks to reschedule"}
+          {blocks.length > 0 && activities.length > 0 && " · "}
+          {activities.length > 0 && "Coloured blocks are your activities (blocked time)"}
         </p>
       )}
     </div>

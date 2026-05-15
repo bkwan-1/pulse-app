@@ -6,6 +6,7 @@ import {
   offsetDate,
   type ScheduleTask,
   type ScheduleProfile,
+  type Activity,
 } from "@/lib/ai/schedulePrompt";
 
 const DEFAULT_PROFILE: ScheduleProfile = {
@@ -57,7 +58,13 @@ export async function POST() {
         }
       : DEFAULT_PROFILE;
 
-    // 4. Build prompt + call Gemini
+    // 4. Fetch activities (blocked times)
+    const { data: activitiesData } = await supabase
+      .from("activities")
+      .select("title,days_of_week,start_time,end_time")
+      .eq("user_id", user.id);
+
+    // 5. Build prompt + call Gemini
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
         { error: "GEMINI_API_KEY is not configured." },
@@ -70,7 +77,8 @@ export async function POST() {
       (tasks ?? []) as ScheduleTask[],
       profile,
       today,
-      7
+      7,
+      (activitiesData ?? []) as Activity[]
     );
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });

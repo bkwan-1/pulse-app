@@ -12,6 +12,7 @@ import {
   Brain,
   Settings,
   LogOut,
+  CalendarClock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
@@ -23,12 +24,13 @@ import { CommandPalette } from "@/components/command-palette";
 const EASE = [0.25, 0.1, 0.25, 1] as [number, number, number, number];
 
 const NAV = [
-  { href: "/dashboard",           icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/dashboard/schedule",  icon: CalendarDays,    label: "Schedule"  },
-  { href: "/dashboard/tasks",     icon: CheckSquare,     label: "Tasks"     },
-  { href: "/dashboard/analytics", icon: BarChart3,       label: "Analytics" },
-  { href: "/dashboard/focus",     icon: Brain,           label: "Focus"     },
-  { href: "/dashboard/settings",  icon: Settings,        label: "Settings"  },
+  { href: "/dashboard",              icon: LayoutDashboard, label: "Dashboard"  },
+  { href: "/dashboard/schedule",     icon: CalendarDays,    label: "Schedule"   },
+  { href: "/dashboard/activities",   icon: CalendarClock,   label: "Activities" },
+  { href: "/dashboard/tasks",        icon: CheckSquare,     label: "Tasks"      },
+  { href: "/dashboard/analytics",    icon: BarChart3,       label: "Analytics"  },
+  { href: "/dashboard/focus",        icon: Brain,           label: "Focus"      },
+  { href: "/dashboard/settings",     icon: Settings,        label: "Settings"   },
 ] as const;
 
 const TAB_BAR = NAV.filter((n) =>
