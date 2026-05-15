@@ -181,16 +181,15 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-6">
             {/* sleep goal */}
             <div>
-              <label className="mb-3 block text-sm font-medium text-[var(--text-primary)]">
-                Sleep goal
-              </label>
-              <div className="flex flex-col items-center gap-4">
-                <div className="text-center">
-                  <span className="text-4xl font-semibold tabular-nums text-[var(--text-primary)]">
-                    {profile.sleep_goal}
-                  </span>
-                  <span className="ml-1.5 text-base text-[var(--text-secondary)]">hours</span>
-                </div>
+              <div className="mb-3 flex items-baseline justify-between">
+                <label className="text-sm font-medium text-[var(--text-primary)]">
+                  Sleep goal
+                </label>
+                <span className="text-2xl font-semibold tabular-nums text-[var(--text-primary)]">
+                  {profile.sleep_goal}<span className="ml-1 text-sm font-normal text-[var(--text-secondary)]">hrs</span>
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
                 <div className="w-full">
                   <input
                     type="range"

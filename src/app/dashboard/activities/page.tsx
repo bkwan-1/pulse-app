@@ -363,7 +363,7 @@ export default function ActivitiesPage() {
           </Button>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <AnimatePresence initial={false}>
             {activities.map((a) => (
               <motion.div
@@ -372,27 +372,19 @@ export default function ActivitiesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.18, ease: EASE }}
-                className="group relative flex items-center gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] px-4 py-3 hover:border-[var(--border-default)]"
+                className="group relative flex items-center gap-4 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] px-5 py-4"
                 style={{ borderLeft: `3px solid ${a.color}` }}
               >
-                {/* color dot */}
-                <div
-                  className="h-3 w-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: a.color }}
-                />
-
                 {/* info */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{a.title}</p>
-                  <div className="mt-0.5 flex items-center gap-2 text-xs text-[var(--text-muted)]">
-                    <span>{dayBadges(a.days_of_week)}</span>
-                    <span>·</span>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-[var(--text-muted)]">
                     <span>{formatTime(a.start_time.slice(0, 5))} – {formatTime(a.end_time.slice(0, 5))}</span>
                   </div>
                 </div>
 
                 {/* day badges */}
-                <div className="hidden shrink-0 flex-wrap gap-1 sm:flex">
+                <div className="hidden shrink-0 flex-wrap gap-1.5 sm:flex">
                   {[...a.days_of_week].sort((x, y) => x - y).map((d) => (
                     <span
                       key={d}
@@ -427,8 +419,8 @@ export default function ActivitiesPage() {
 
       {/* hint */}
       {activities.length > 0 && (
-        <p className="text-xs text-[var(--text-muted)]">
-          These times are blocked on your schedule. Regenerate your schedule after adding activities.
+        <p className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-secondary)] px-4 py-3 text-xs text-[var(--text-muted)]">
+          These times are blocked on your schedule. Regenerate your schedule after adding or changing activities.
         </p>
       )}
 

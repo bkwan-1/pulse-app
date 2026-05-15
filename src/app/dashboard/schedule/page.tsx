@@ -301,9 +301,9 @@ function WeekGrid({
         <div className="border-b border-[var(--border-subtle)] py-2">
           <div className="h-7" />
         </div>
-        {/* hour labels */}
+        {/* hour labels — skip h=0 (sits on header border at -8px) */}
         <div className="relative" style={{ height: TOTAL_HEIGHT }}>
-          {HOURS.map((h) => (
+          {HOURS.filter((h) => h > 0).map((h) => (
             <div
               key={h}
               style={{ position: "absolute", top: (h - START_HOUR) * HOUR_HEIGHT - 8 }}
