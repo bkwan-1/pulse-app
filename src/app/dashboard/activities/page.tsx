@@ -328,7 +328,7 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
+    <div className="flex max-w-6xl flex-col gap-6">
       {/* header */}
       <div className="flex items-center justify-between">
         <div>
