@@ -572,7 +572,18 @@ function DashboardMockup() {
 
 /* ─── footer ───────────────────────────────────────────────────── */
 
+const CONTACT_EMAIL = "getaipulseapp@gmail.com";
+
 function Footer() {
+  const [showContact, setShowContact] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  function copyEmail() {
+    navigator.clipboard.writeText(CONTACT_EMAIL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <footer className="border-t border-[var(--border-subtle)] px-6 py-8 md:px-10">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
@@ -584,19 +595,36 @@ function Footer() {
           © 2025 Pulse. Built for students.
         </p>
         <div className="flex gap-5 text-xs text-[var(--text-muted)]">
-          {[
-            { label: "Privacy", href: "/privacy" },
-            { label: "Terms", href: "/terms" },
-            { label: "Contact", href: "mailto:brandonkyvr@gmail.com" },
-          ].map(({ label, href }) => (
-            <a
-              key={label}
-              href={href}
+          <a href="/privacy" className="transition-colors hover:text-[var(--text-secondary)]">Privacy</a>
+          <a href="/terms" className="transition-colors hover:text-[var(--text-secondary)]">Terms</a>
+          <div className="relative">
+            <button
+              onClick={() => setShowContact((v) => !v)}
               className="transition-colors hover:text-[var(--text-secondary)]"
             >
-              {label}
-            </a>
-          ))}
+              Contact
+            </button>
+            {showContact && (
+              <>
+                {/* backdrop */}
+                <div className="fixed inset-0 z-40" onClick={() => setShowContact(false)} />
+                {/* popup */}
+                <div className="absolute bottom-7 right-0 z-50 w-72 rounded-xl border border-[var(--border-default)] bg-[var(--bg-secondary)] p-4 shadow-2xl">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">Get in touch</p>
+                  <div className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2">
+                    <span className="text-xs text-[var(--text-primary)]">{CONTACT_EMAIL}</span>
+                    <button
+                      onClick={copyEmail}
+                      className="shrink-0 rounded px-2 py-1 text-[10px] font-semibold transition-colors"
+                      style={{ color: copied ? "#16a34a" : "var(--accent)" }}
+                    >
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </footer>
