@@ -173,14 +173,22 @@ function DraggableBlock({ block }: { block: ScheduleBlock }) {
         isDragging && "cursor-grabbing opacity-75 shadow-xl ring-1 ring-[var(--accent)]"
       )}
     >
-      <p className="truncate font-semibold leading-tight">
-        {block.tasks?.title ?? "Task"}
-      </p>
-      {height > 36 && (
-        <p className="truncate opacity-60">{formatDuration(block.duration)}</p>
-      )}
-      {height > 52 && block.tasks?.course && (
-        <p className="truncate opacity-50">{block.tasks.course}</p>
+      {height <= 28 ? (
+        /* very short block: single line with duration inline */
+        <p className="truncate font-semibold leading-tight">
+          {block.tasks?.title ?? "Task"} · {formatDuration(block.duration)}
+        </p>
+      ) : (
+        /* taller block: title + duration on separate lines */
+        <>
+          <p className="truncate font-semibold leading-tight">
+            {block.tasks?.title ?? "Task"}
+          </p>
+          <p className="truncate opacity-60">{formatDuration(block.duration)}</p>
+          {height > 52 && block.tasks?.course && (
+            <p className="truncate opacity-50">{block.tasks.course}</p>
+          )}
+        </>
       )}
     </div>
   );
