@@ -41,10 +41,9 @@ interface StatData {
 
 interface ScheduleEvent {
   id: string;
-  title: string;
-  type: "class" | "study" | "focus" | string;
   start_time: string;
-  duration_minutes: number;
+  duration: number;
+  tasks: { title: string; course: string | null } | null;
 }
 
 interface Deadline {
@@ -402,8 +401,8 @@ export default function DashboardPage() {
         .eq("user_id", user.id)
         .single(),
       supabase
-        .from("schedule_events")
-        .select("id,title,type,start_time,duration_minutes")
+        .from("schedules")
+        .select("id,start_time,duration,tasks(title,course)")
         .eq("user_id", user.id)
         .eq("date", today)
         .order("start_time"),
@@ -418,7 +417,7 @@ export default function DashboardPage() {
       const sessions = sessionsRes.data ?? [];
 
       setDeadlines(tasks.slice(0, 5) as Deadline[]);
-      setSchedule((scheduleRes.data ?? []) as ScheduleEvent[]);
+      setSchedule((scheduleRes.data ?? []) as unknown as ScheduleEvent[]);
       setChartData(buildChartData(sessions));
       setStats({
         tasksThisWeek: tasks.length,
@@ -551,17 +550,18 @@ export default function DashboardPage() {
             ) : (
               schedule.map((ev) => (
                 <div key={ev.id} className="flex items-start gap-3 py-3">
-                  {typeDot(ev.type)}
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-400" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-[var(--text-primary)]">
-                      {ev.title}
+                      {ev.tasks?.title ?? "Task"}
                     </p>
                     <p className="text-xs text-[var(--text-muted)]">
                       {formatTime(ev.start_time)}
-                      {ev.duration_minutes ? ` · ${ev.duration_minutes}min` : ""}
+                      {ev.duration ? ` · ${Math.round(ev.duration * 60)}min` : ""}
+                      {ev.tasks?.course ? ` · ${ev.tasks.course}` : ""}
                     </p>
                   </div>
-                  {typeBadge(ev.type)}
+                  <Badge variant="default">Study</Badge>
                 </div>
               ))
             )}
