@@ -483,7 +483,7 @@ export default function SchedulePage() {
 
       {/* error */}
       {error && (
-        <div className="rounded-lg border border-red-800/40 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="rounded-lg border border-[var(--status-overload)]/30 bg-[var(--status-overload)]/10 px-4 py-3 text-sm text-[var(--status-overload)]">
           {error}
         </div>
       )}

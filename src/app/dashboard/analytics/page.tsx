@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import {
   AreaChart,
   Area,
@@ -52,10 +53,10 @@ interface BurnoutMetrics {
 
 const HEAT_COLORS = [
   "bg-[var(--surface)]",
-  "bg-violet-900/60",
-  "bg-violet-700/70",
-  "bg-violet-500/80",
-  "bg-violet-400",
+  "bg-[var(--accent)]/20",
+  "bg-[var(--accent)]/40",
+  "bg-[var(--accent)]/65",
+  "bg-[var(--accent)]/90",
 ];
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
@@ -222,11 +223,23 @@ function calculateBurnout(
 
 /* ─── burnout gauge ──────────────────────────────────────────────── */
 
-function burnoutColor(score: number) {
-  if (score < 26) return "#22c55e";
-  if (score < 51) return "#eab308";
-  if (score < 76) return "#f97316";
-  return "#ef4444";
+function useBurnoutColor(score: number): string {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  if (score < 26) return isDark ? "#4ADE80" : "#A3C6B6";
+  if (score < 51) return isDark ? "#FCD34D" : "#C8A86B";
+  if (score < 76) return isDark ? "#FB923C" : "#D9745B";
+  return isDark ? "#F87171" : "#C0523A";
+}
+
+function useAccentColor(): string {
+  const { resolvedTheme } = useTheme();
+  return resolvedTheme === "dark" ? "#2DD4BF" : "#3A6053";
+}
+
+function useScheduledColor(): string {
+  const { resolvedTheme } = useTheme();
+  return resolvedTheme === "dark" ? "#60A5FA" : "#4A90B8";
 }
 
 function burnoutLabel(score: number) {
@@ -240,7 +253,7 @@ function BurnoutGauge({ score }: { score: number }) {
   const r = 60;
   const circ = Math.PI * r;
   const offset = circ * (1 - score / 100);
-  const color = burnoutColor(score);
+  const color = useBurnoutColor(score);
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -325,6 +338,10 @@ function SubjectTooltip({
 
 export default function AnalyticsPage() {
   const { user } = useUser();
+  const accentColor = useAccentColor();
+  const scheduledColor = useScheduledColor();
+  const [burnout, setBurnout] = useState<BurnoutMetrics | null>(null);
+  const burnoutScoreColor = useBurnoutColor(burnout?.score ?? 0);
 
   const [workloadGrid, setWorkloadGrid] = useState<number[][] | null>(null);
   const [completionSeries, setCompletionSeries] = useState<
@@ -334,7 +351,6 @@ export default function AnalyticsPage() {
     { subject: string; estimated: number; scheduled: number }[] | null
   >(null);
   const [focusGrid, setFocusGrid] = useState<number[][] | null>(null);
-  const [burnout, setBurnout] = useState<BurnoutMetrics | null>(null);
   const [insight, setInsight] = useState<string | null>(null);
   const [insightLoading, setInsightLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -434,8 +450,8 @@ export default function AnalyticsPage() {
             >
               <defs>
                 <linearGradient id="completionGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                  <stop offset="5%" stopColor={accentColor} stopOpacity={0.25} />
+                  <stop offset="95%" stopColor={accentColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -459,10 +475,10 @@ export default function AnalyticsPage() {
               <Area
                 type="monotone"
                 dataKey="rate"
-                stroke="#7c3aed"
+                stroke={accentColor}
                 strokeWidth={2}
                 fill="url(#completionGrad)"
-                dot={{ fill: "#7c3aed", r: 3 }}
+                dot={{ fill: accentColor, r: 3 }}
                 activeDot={{ r: 5 }}
               />
             </AreaChart>
@@ -512,14 +528,14 @@ export default function AnalyticsPage() {
                 <Bar
                   dataKey="estimated"
                   name="Estimated"
-                  fill="#7c3aed"
+                  fill={accentColor}
                   barSize={14}
                   radius={[3, 3, 0, 0]}
                 />
                 <Bar
                   dataKey="scheduled"
                   name="Scheduled"
-                  fill="#3b82f6"
+                  fill={scheduledColor}
                   barSize={14}
                   radius={[3, 3, 0, 0]}
                 />
@@ -560,7 +576,7 @@ export default function AnalyticsPage() {
               <StatRow
                 label="Score"
                 value={`${burnout.score}/100`}
-                color={burnoutColor(burnout.score)}
+                color={burnoutScoreColor}
               />
               <StatRow
                 label="Overdue tasks"

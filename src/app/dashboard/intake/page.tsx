@@ -380,14 +380,14 @@ export default function IntakePage() {
 
       {/* error banner */}
       {error && (
-        <div className="rounded-lg border border-red-800/40 bg-red-950/50 px-4 py-3 text-sm text-red-400">
+        <div className="rounded-lg border border-[var(--status-overload)]/30 bg-[var(--status-overload)]/10 px-4 py-3 text-sm text-[var(--status-overload)]">
           {error}
         </div>
       )}
 
       {/* success banner */}
       {savedCount !== null && (
-        <div className="flex items-center gap-2 rounded-lg border border-green-800/50 bg-green-950/50 px-4 py-3 text-sm text-green-400">
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--status-success)]/30 bg-[var(--status-success)]/10 px-4 py-3 text-sm text-[var(--status-success)]">
           <CheckCircle className="h-4 w-4 shrink-0" />
           {savedCount} task{savedCount !== 1 ? "s" : ""} saved to your task list.
         </div>

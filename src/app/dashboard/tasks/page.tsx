@@ -64,9 +64,9 @@ const PALETTE = [
 const PRIORITY_ORDER: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
 
 const PRIORITY_ACTIVE: Record<string, string> = {
-  Low:    "bg-green-950 text-green-400 border border-green-800/60",
-  Medium: "bg-yellow-950 text-yellow-400 border border-yellow-800/60",
-  High:   "bg-red-950 text-red-400 border border-red-800/60",
+  Low:    "bg-[var(--status-success)]/20 text-[var(--status-success)] border border-[var(--status-success)]/30",
+  Medium: "bg-[var(--status-warning)]/20 text-[var(--status-warning)] border border-[var(--status-warning)]/30",
+  High:   "bg-[var(--status-overload)]/20 text-[var(--status-overload)] border border-[var(--status-overload)]/30",
 };
 
 const filterSelectCls =

@@ -18,6 +18,9 @@ const config: Config = {
         "text-primary": "var(--text-primary)",
         "text-secondary": "var(--text-secondary)",
         "text-muted": "var(--text-muted)",
+        "status-overload": "var(--status-overload)",
+        "status-success": "var(--status-success)",
+        "status-warning": "var(--status-warning)",
       },
       borderColor: {
         subtle: "var(--border-subtle)",

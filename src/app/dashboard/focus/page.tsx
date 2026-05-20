@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -58,9 +59,13 @@ function TimerRing({
   totalTime: number;
   phase: Phase;
 }) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const fraction = totalTime > 0 ? timeLeft / totalTime : 0;
   const offset   = CIRCUMFERENCE * fraction;
-  const stroke   = phase === "break" ? "#60a5fa" : "#7c3aed";
+  const stroke   = phase === "break"
+    ? (isDark ? "#60A5FA" : "#4A90B8")
+    : (isDark ? "#2DD4BF" : "#3A6053");
 
   return (
     <svg viewBox="0 0 240 240" className="h-60 w-60">

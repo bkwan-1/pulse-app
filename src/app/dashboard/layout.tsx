@@ -13,7 +13,10 @@ import {
   Settings,
   LogOut,
   CalendarClock,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/lib/supabase/client";
@@ -64,6 +67,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useUser();
+  const { resolvedTheme, setTheme } = useTheme();
 
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ??
@@ -142,6 +146,16 @@ export default function DashboardLayout({
               </p>
               <p className="truncate text-xs text-[var(--text-muted)]">{email}</p>
             </div>
+            {/* Theme toggle */}
+            <button
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              title="Toggle theme"
+              className="shrink-0 rounded-md p-1 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+            >
+              {resolvedTheme === "dark"
+                ? <Sun className="h-4 w-4" />
+                : <Moon className="h-4 w-4" />}
+            </button>
             {/* Sign out */}
             <button
               onClick={handleSignOut}
