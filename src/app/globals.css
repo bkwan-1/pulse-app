@@ -126,55 +126,6 @@
   --status-warning:  #C8A86B;
 }
 
-.dark {
-  /* shadcn/ui tokens — dark mode ("Midnight Grind") */
-  --background:                  oklch(0.11 0.025 243);
-  --foreground:                  oklch(0.974 0.004 247);
-  --card:                        oklch(0.175 0.04 251);
-  --card-foreground:             oklch(0.974 0.004 247);
-  --popover:                     oklch(0.175 0.04 251);
-  --popover-foreground:          oklch(0.974 0.004 247);
-  --primary:                     oklch(0.80 0.12 185);
-  --primary-foreground:          oklch(0.11 0.025 243);
-  --secondary:                   oklch(0.23 0.04 251);
-  --secondary-foreground:        oklch(0.974 0.004 247);
-  --muted:                       oklch(0.23 0.04 251);
-  --muted-foreground:            oklch(0.60 0.03 247);
-  --accent:                      oklch(0.80 0.12 185);
-  --accent-foreground:           oklch(0.11 0.025 243);
-  --destructive:                 oklch(0.704 0.191 22.216);
-  --border:                      oklch(1 0 0 / 10%);
-  --input:                       oklch(1 0 0 / 15%);
-  --ring:                        oklch(0.80 0.12 185);
-  --chart-1:                     oklch(0.80 0.12 185);
-  --chart-2:                     oklch(0.78 0.15 145);
-  --chart-3:                     oklch(0.73 0.14 47);
-  --chart-4:                     oklch(0.60 0.03 247);
-  --chart-5:                     oklch(0.47 0.03 247);
-  --sidebar:                     oklch(0.175 0.04 251);
-  --sidebar-foreground:          oklch(0.974 0.004 247);
-  --sidebar-primary:             oklch(0.80 0.12 185);
-  --sidebar-primary-foreground:  oklch(0.11 0.025 243);
-  --sidebar-accent:              oklch(0.23 0.04 251);
-  --sidebar-accent-foreground:   oklch(0.974 0.004 247);
-  --sidebar-border:              oklch(1 0 0 / 10%);
-  --sidebar-ring:                oklch(0.80 0.12 185);
-
-  /* Custom design-system tokens — dark mode */
-  --bg-primary:      #0B0F17;
-  --bg-secondary:    #1E2640;
-  --bg-tertiary:     #252D4A;
-  --surface:         #2C3558;
-  --border-subtle:   #F8FAFC0F;
-  --border-default:  #F8FAFC1F;
-  --accent:          #2DD4BF;
-  --text-primary:    #F8FAFC;
-  --text-secondary:  #94A3B8;
-  --text-muted:      #64748B;
-  --status-overload: #FB923C;
-  --status-success:  #4ADE80;
-  --status-warning:  #FCD34D;
-}
 
 @layer base {
   * {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
 import {
   AreaChart,
   Area,
@@ -223,24 +222,15 @@ function calculateBurnout(
 
 /* ─── burnout gauge ──────────────────────────────────────────────── */
 
-function useBurnoutColor(score: number): string {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-  if (score < 26) return isDark ? "#4ADE80" : "#A3C6B6";
-  if (score < 51) return isDark ? "#FCD34D" : "#C8A86B";
-  if (score < 76) return isDark ? "#FB923C" : "#D9745B";
-  return isDark ? "#F87171" : "#C0523A";
+function burnoutColor(score: number): string {
+  if (score < 26) return "#A3C6B6";
+  if (score < 51) return "#C8A86B";
+  if (score < 76) return "#D9745B";
+  return "#C0523A";
 }
 
-function useAccentColor(): string {
-  const { resolvedTheme } = useTheme();
-  return resolvedTheme === "dark" ? "#2DD4BF" : "#3A6053";
-}
-
-function useScheduledColor(): string {
-  const { resolvedTheme } = useTheme();
-  return resolvedTheme === "dark" ? "#60A5FA" : "#4A90B8";
-}
+const ACCENT_COLOR = "#3A6053";
+const SCHEDULED_COLOR = "#4A90B8";
 
 function burnoutLabel(score: number) {
   if (score < 26) return "Healthy";
@@ -253,7 +243,7 @@ function BurnoutGauge({ score }: { score: number }) {
   const r = 60;
   const circ = Math.PI * r;
   const offset = circ * (1 - score / 100);
-  const color = useBurnoutColor(score);
+  const color = burnoutColor(score);
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -338,10 +328,7 @@ function SubjectTooltip({
 
 export default function AnalyticsPage() {
   const { user } = useUser();
-  const accentColor = useAccentColor();
-  const scheduledColor = useScheduledColor();
   const [burnout, setBurnout] = useState<BurnoutMetrics | null>(null);
-  const burnoutScoreColor = useBurnoutColor(burnout?.score ?? 0);
 
   const [workloadGrid, setWorkloadGrid] = useState<number[][] | null>(null);
   const [completionSeries, setCompletionSeries] = useState<
@@ -450,8 +437,8 @@ export default function AnalyticsPage() {
             >
               <defs>
                 <linearGradient id="completionGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={accentColor} stopOpacity={0.25} />
-                  <stop offset="95%" stopColor={accentColor} stopOpacity={0} />
+                  <stop offset="5%" stopColor={ACCENT_COLOR} stopOpacity={0.25} />
+                  <stop offset="95%" stopColor={ACCENT_COLOR} stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -475,10 +462,10 @@ export default function AnalyticsPage() {
               <Area
                 type="monotone"
                 dataKey="rate"
-                stroke={accentColor}
+                stroke={ACCENT_COLOR}
                 strokeWidth={2}
                 fill="url(#completionGrad)"
-                dot={{ fill: accentColor, r: 3 }}
+                dot={{ fill: ACCENT_COLOR, r: 3 }}
                 activeDot={{ r: 5 }}
               />
             </AreaChart>
@@ -528,14 +515,14 @@ export default function AnalyticsPage() {
                 <Bar
                   dataKey="estimated"
                   name="Estimated"
-                  fill={accentColor}
+                  fill={ACCENT_COLOR}
                   barSize={14}
                   radius={[3, 3, 0, 0]}
                 />
                 <Bar
                   dataKey="scheduled"
                   name="Scheduled"
-                  fill={scheduledColor}
+                  fill={SCHEDULED_COLOR}
                   barSize={14}
                   radius={[3, 3, 0, 0]}
                 />
@@ -576,7 +563,7 @@ export default function AnalyticsPage() {
               <StatRow
                 label="Score"
                 value={`${burnout.score}/100`}
-                color={burnoutScoreColor}
+                color={burnoutColor(burnout.score)}
               />
               <StatRow
                 label="Overdue tasks"
