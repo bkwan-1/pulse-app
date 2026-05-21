@@ -169,8 +169,24 @@ export async function POST() {
     return NextResponse.json({ blocks: saved ?? rows });
   } catch (err) {
     console.error("[generate-schedule]", err);
-    const message =
-      err instanceof Error ? err.message : "Schedule generation failed.";
+
+    let message = "Schedule generation failed.";
+    if (err instanceof Error) {
+      // Gemini SDK throws with the raw API JSON as the message — parse it
+      try {
+        const parsed = JSON.parse(err.message) as { error?: { code?: number; message?: string } };
+        const inner = parsed?.error?.message ?? "";
+        const code = parsed?.error?.code;
+        if (code === 429 || inner.toLowerCase().includes("quota") || inner.includes("RESOURCE_EXHAUSTED")) {
+          message = "AI quota exceeded. Please wait a moment and try again.";
+        } else if (inner) {
+          message = inner.split("\\n")[0].trim();
+        }
+      } catch {
+        message = err.message;
+      }
+    }
+
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
