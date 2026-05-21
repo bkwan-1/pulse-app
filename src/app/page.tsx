@@ -216,9 +216,9 @@ const TIME_LABELS = ["8am", "9am", "10am", "11am", "12pm", "1pm", "2pm", "3pm"];
 
 function cellColor(label: string | null) {
   if (label === "CS 101" || label === "Math")
-    return "bg-violet-500/20 border-l-2 border-violet-500/60 text-violet-300";
+    return "bg-[var(--accent)]/[0.12] border-l-2 border-[var(--accent)]/50 text-[var(--accent)]";
   if (label === "Study" || label === "Focus")
-    return "bg-indigo-500/20 border-l-2 border-indigo-500/60 text-indigo-300";
+    return "bg-[var(--accent)]/[0.07] border-l-2 border-[var(--accent)]/30 text-[var(--text-secondary)]";
   return "bg-[var(--bg-tertiary)]";
 }
 
@@ -327,10 +327,10 @@ const HEAT: number[][] = [
 
 const HEAT_COLORS = [
   "bg-[var(--surface)]",
-  "bg-violet-900/60",
-  "bg-violet-700/70",
-  "bg-violet-500/80",
-  "bg-amber-500/80",
+  "bg-[var(--accent)]/20",
+  "bg-[var(--accent)]/40",
+  "bg-[var(--accent)]/65",
+  "bg-[var(--status-overload)]/80",
 ];
 
 const DAY_INITIALS = ["M", "T", "W", "T", "F", "S", "S"];
@@ -429,11 +429,11 @@ const STATS = [
 ];
 
 const CHART_ROWS = [
-  { label: "CS 101", pct: 85, color: "bg-violet-500/70" },
-  { label: "Calculus", pct: 60, color: "bg-indigo-500/70" },
-  { label: "Writing", pct: 40, color: "bg-blue-500/60" },
-  { label: "Physics", pct: 70, color: "bg-violet-400/60" },
-  { label: "History", pct: 30, color: "bg-indigo-400/50" },
+  { label: "CS 101",   pct: 85, color: "bg-[#3A6053]" },
+  { label: "Calculus", pct: 60, color: "bg-[#4A90B8]" },
+  { label: "Writing",  pct: 40, color: "bg-[#A3C6B6]" },
+  { label: "Physics",  pct: 70, color: "bg-[#C8A86B]" },
+  { label: "History",  pct: 30, color: "bg-[#7A9088]" },
 ];
 
 const RECENT_TASKS = [
@@ -460,7 +460,7 @@ function DashboardMockup() {
         {/* mock frame */}
         <div
           className="overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-secondary)]"
-          style={{ boxShadow: "0 0 80px rgba(124,58,237,0.07)" }}
+          style={{ boxShadow: "0 0 80px rgba(58,96,83,0.10)" }}
         >
           <div className="flex">
             {/* sidebar */}
@@ -724,8 +724,8 @@ export default function Home() {
   return (
     <main className="relative overflow-x-hidden bg-[var(--bg-primary)]">
       {/* hero orbs */}
-      <div className="pointer-events-none absolute -left-40 -top-40 h-[600px] w-[600px] rounded-full bg-violet-600/[0.12] blur-[120px]" />
-      <div className="pointer-events-none absolute -right-20 top-[30vh] h-[480px] w-[480px] rounded-full bg-violet-500/[0.07] blur-[100px]" />
+      <div className="pointer-events-none absolute -left-40 -top-40 h-[600px] w-[600px] rounded-full bg-[#3A6053]/[0.10] blur-[120px]" />
+      <div className="pointer-events-none absolute -right-20 top-[30vh] h-[480px] w-[480px] rounded-full bg-[#3A6053]/[0.06] blur-[100px]" />
       <Navbar />
       <Hero />
       <AIIntakeSection />

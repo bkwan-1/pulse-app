@@ -51,14 +51,14 @@ const HOURS         = Array.from({ length: TOTAL_HOURS }, (_, i) => START_HOUR +
 const DAY_LABELS    = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const BLOCK_PALETTE = [
-  { bg: "bg-violet-500/20 border-l-2 border-violet-500",  text: "text-violet-200"  },
-  { bg: "bg-blue-500/20 border-l-2 border-blue-500",      text: "text-blue-200"    },
-  { bg: "bg-emerald-500/20 border-l-2 border-emerald-500",text: "text-emerald-200" },
-  { bg: "bg-amber-500/20 border-l-2 border-amber-500",    text: "text-amber-200"   },
-  { bg: "bg-rose-500/20 border-l-2 border-rose-500",      text: "text-rose-200"    },
-  { bg: "bg-indigo-500/20 border-l-2 border-indigo-500",  text: "text-indigo-200"  },
-  { bg: "bg-cyan-500/20 border-l-2 border-cyan-500",      text: "text-cyan-200"    },
-  { bg: "bg-orange-500/20 border-l-2 border-orange-500",  text: "text-orange-200"  },
+  { bg: "bg-[var(--accent)]/15 border-l-2 border-[var(--accent)]/60",  text: "text-[var(--accent)]" },
+  { bg: "bg-blue-500/15 border-l-2 border-blue-500/60",                text: "text-blue-700"        },
+  { bg: "bg-emerald-500/15 border-l-2 border-emerald-500/60",          text: "text-emerald-700"     },
+  { bg: "bg-amber-500/15 border-l-2 border-amber-500/60",              text: "text-amber-800"       },
+  { bg: "bg-rose-500/15 border-l-2 border-rose-500/60",                text: "text-rose-700"        },
+  { bg: "bg-teal-500/15 border-l-2 border-teal-500/60",                text: "text-teal-700"        },
+  { bg: "bg-cyan-500/15 border-l-2 border-cyan-500/60",                text: "text-cyan-700"        },
+  { bg: "bg-orange-500/15 border-l-2 border-orange-500/60",            text: "text-orange-700"      },
 ];
 
 /* ─── helpers ────────────────────────────────────────────────────── */

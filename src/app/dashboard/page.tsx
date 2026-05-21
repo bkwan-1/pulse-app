@@ -134,10 +134,10 @@ function formatTime(time: string): string {
 function typeDot(type: string) {
   const cls =
     type === "class"
-      ? "bg-violet-500"
+      ? "bg-[var(--accent)]"
       : type === "focus"
       ? "bg-blue-400"
-      : "bg-indigo-400";
+      : "bg-teal-400";
   return <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", cls)} />;
 }
 
@@ -550,7 +550,7 @@ export default function DashboardPage() {
             ) : (
               schedule.map((ev) => (
                 <div key={ev.id} className="flex items-start gap-3 py-3">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-400" />
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent)]" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-[var(--text-primary)]">
                       {ev.tasks?.title ?? "Task"}
