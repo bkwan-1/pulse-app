@@ -113,6 +113,13 @@ export async function POST() {
     const endDate = offsetDate(today, 7);
     const validTaskIds = new Set((tasks ?? []).map((t) => t.id));
 
+    // Per-task hour caps and dedup state
+    const taskMaxHours = new Map(
+      (tasks ?? []).map((t) => [t.id, t.estimated_hours ?? 1])
+    );
+    const taskScheduled = new Map<string, number>();
+    const seenSlots = new Set<string>();
+
     const rows = blocks
       .filter(
         (b) =>
@@ -125,13 +132,32 @@ export async function POST() {
           b.duration > 0 &&
           b.duration <= 8
       )
-      .map((b) => ({
-        user_id: user.id,
-        task_id: b.taskId,
-        date: b.date,
-        start_time: b.startTime,
-        duration: b.duration,
-      }));
+      .reduce<{ user_id: string; task_id: string; date: string; start_time: string; duration: number }[]>(
+        (acc, b) => {
+          // Drop exact duplicate slots for the same task
+          const slotKey = `${b.taskId}|${b.date}|${b.startTime}`;
+          if (seenSlots.has(slotKey)) return acc;
+          seenSlots.add(slotKey);
+
+          // Cap total scheduled hours at the task's estimated_hours
+          const maxHours = taskMaxHours.get(b.taskId) ?? 1;
+          const already = taskScheduled.get(b.taskId) ?? 0;
+          if (already >= maxHours) return acc;
+
+          const duration = Math.min(b.duration, maxHours - already);
+          taskScheduled.set(b.taskId, already + duration);
+
+          acc.push({
+            user_id: user.id,
+            task_id: b.taskId,
+            date: b.date,
+            start_time: b.startTime,
+            duration,
+          });
+          return acc;
+        },
+        []
+      );
 
     const { data: saved, error: insertError } = await supabase
       .from("schedules")

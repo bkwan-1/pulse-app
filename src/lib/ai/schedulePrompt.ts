@@ -108,7 +108,7 @@ SCHEDULING WINDOW: ${today} (today) through ${endDate} (${daysAhead} days)
 RULES — follow every rule strictly:
 1. Prefer scheduling work during the student's peak hours
 2. NEVER schedule a session on a date AFTER the task's due_date
-3. If a task needs more than 2 hours, split it into multiple sessions of ≤2h each — each session is its own JSON object with the same taskId
+3. If a task needs more than 2 hours, split it into multiple sessions of ≤2h each — each session is its own JSON object with the same taskId. The TOTAL duration across all sessions for one task MUST equal exactly that task's estimated_hours (or 1h if null). Never pad or round up.
 4. Leave at least 30 minutes between any two consecutive sessions on the same day
 5. Schedule NO MORE than 6 total study hours per calendar day
 6. Do not schedule anything after ${noScheduleAfter} (respects sleep goal)
